@@ -3,7 +3,7 @@ using namespace std;
 
 Simulator::Simulator():CycleNum(0),pc(0),reg(),If(),Id(),Ex(),Mem(),Wb(),stop(false)
 {
-    memory = new u_int8_t [0x200000000];
+    memory = new u_int8_t [500000000];
     for(auto &i : reg)i = 0;
 }
 

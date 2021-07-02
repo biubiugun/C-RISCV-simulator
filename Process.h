@@ -25,7 +25,7 @@ public:
 
     InstructionDecoder();
 
-    void DecodeInstruction(int32_t _inst,u_int32_t &_pc);
+    void DecodeInstruction(u_int32_t _inst,u_int32_t &_pc);
 
 
 };
@@ -55,7 +55,7 @@ public:
 
     MemoryAccessor();
 
-    void AccessMemory(Executer x,u_int8_t *&memory);
+    void AccessMemory(Executer x,u_int8_t *memory);
 };
 
 class Writer{

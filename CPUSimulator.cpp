@@ -33,13 +33,22 @@ void Simulator::WB() {
 
 void Simulator::run() {
     while(!stop){
+//        if(CycleNum > 800)break;
         IF();
+//        cout << "step" << CycleNum + 1 << ": pc=" << hex << pc - 4;
+//        cout << ", inst= " << If.inst;
         if(stop)break;
         ID();
+//        cout << dec;
+//        cout << ", immediate=" << Id.immediate << ", op=" << Id.op << ", rs1=" << Id.rs1 << ", rs2=" << Id.rs2 << ", rd=" << Id.rd;
+//        if(Id.op == INVALID)break;
         EX();
+//        cout << ", result=" << Ex.result << ", memoryAddress=" << Ex.TarAddress;
         MEM();
+//        cout << ", resultLoad=" << Mem.result;
         WB();
         CycleNum++;
+//        cout << endl;
     }
     printf("%d\n", (u_int32_t)reg[10] & 255u);
 }

@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <iostream>
 #include "order.h"
+#include <cstring>
 
 using namespace RISCV;
 class InstructionFetcher{

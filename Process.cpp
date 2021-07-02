@@ -21,10 +21,6 @@ void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc) {
         immediate = int32_t (_inst >> 12) << 12;
         rd = (_inst >> 7) & 0b11111u;
     }else if(type == J){
-        u_int32_t imm20 = _inst >> 31 << 20;
-        u_int32_t imm10_1 =( (_inst >> 20 ) & 2046u);
-        u_int32_t imm11 = ((_inst >> 19) & 2u) << 10;
-        u_int32_t imm19_12 = ((_inst >> 12) & 0b11111111) << 12;
         immediate = int(_inst >> 31 << 20 | _inst << 1 >> 22 << 1 | _inst << 11 >> 31 << 11 | _inst << 12 >> 24 << 12) << 11 >> 11;
         rd = (_inst >> 7) & 0b11111u;
     }else if(type == I){
@@ -39,8 +35,6 @@ void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc) {
     }else if(type == S){
         rs1 = (_inst >> 15) & 0b11111u;
         rs2 = (_inst >> 20) & 0b11111u;
-        u_int32_t imm11_5 = ((_inst >> 25) & 0x3fu) << 5;
-        u_int32_t imm4_0 = (_inst >> 7) & 0x1fu;
         immediate = int(_inst >> 25 << 5 | _inst << 20 >> 27) << 20 >> 20;
      } else if(type == R){
         rd = (_inst >> 7) & 0b11111u;

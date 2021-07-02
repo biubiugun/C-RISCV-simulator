@@ -10,7 +10,7 @@ using namespace std;
 class Simulator{
 public:
     u_int32_t pc;
-    int32_t reg[32];
+    int32_t reg[33];
     size_t CycleNum;
     u_int8_t *memory;
     bool stop = false;

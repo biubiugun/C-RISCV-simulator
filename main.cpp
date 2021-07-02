@@ -6,11 +6,9 @@ int main() {
     cin.tie(0);
     cout.tie(0);
     Simulator risc_v;
-//    read(risc_v.memory);
     u_int32_t index = 0;
-    while(true){
-        string data;
-        cin >> data;
+    string data;
+    while(cin >> data){
         if(data == "end")break;
         if(cin.eof())break;
         if(data[0] == '@'){

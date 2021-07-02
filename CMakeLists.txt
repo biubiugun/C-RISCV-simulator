@@ -3,4 +3,4 @@ project(code)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(code main.cpp CPUSimulator.h CPUSimulator.cpp order.h Process.cpp Process.h BranchPredictor.cpp BranchPredictor.h)
+add_executable(code main.cpp CPUSimulator.h CPUSimulator.cpp order.h Process.cpp Process.h)

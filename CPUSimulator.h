@@ -21,6 +21,8 @@ public:
     MemoryAccessor Mem;
     Writer Wb;
 
+    BranchPredictor predictor;
+
     void IF();
 
     void ID();

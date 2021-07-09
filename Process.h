@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <iostream>
 #include "order.h"
+#include "BranchPredictor.h"
 #include <cstring>
 
 using namespace RISCV;
@@ -30,7 +31,7 @@ public:
 
     InstructionDecoder();
 
-    void DecodeInstruction(u_int32_t _inst,u_int32_t &_pc,bool IF_working,int modify[],int rg[],bool &isBubble,u_int32_t IF_pc);
+    void DecodeInstruction(u_int32_t _inst,u_int32_t &_pc,bool IF_working,int modify[],int rg[],bool &isBubble,u_int32_t IF_pc,BranchPredictor &predictor);
 
 
 };
@@ -49,7 +50,7 @@ public:
 
     Executer();
 
-    void Execute(InstructionDecoder &x,u_int32_t &pc,int32_t rg[]);
+    void Execute(InstructionDecoder &x,u_int32_t &pc,int32_t rg[],BranchPredictor &predictor);
 
 };
 

@@ -20,11 +20,12 @@ void InstructionFetcher::FetchInstruction(u_int8_t *memory, u_int32_t &_pc,bool 
 InstructionDecoder::InstructionDecoder()
 :working(false),immediate(0),rs1(),rs2(),rd(),stall(false){}
 
-void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc,bool IF_working,int modify[],int rg[],bool &isBubble,u_int32_t IF_pc) {
+void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc,bool IF_working,int modify[],int rg[],bool &isBubble,u_int32_t IF_pc,BranchPredictor &predictor) {
     if(!IF_working)return;
     jump = false;
     if(isBubble){
         stall = true;
+//        std::cout << "id is stall !!" << std::endl;
         IsBubble = true;
         isBubble = false;
         return;
@@ -62,6 +63,11 @@ void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc,bool 
         rs2 = (_inst >> 20) & 0b11111u;
         immediate =  int(_inst >> 31 << 12 | _inst << 1 >> 26 << 5 | _inst << 20 >> 28 << 1 | _inst << 24 >> 31 << 11) << 19 >> 19;
         if(modify[rs1] > 0 || modify[rs2] > 0)stall = true;
+        //add predictor
+        if(!stall){
+            predictor.total++;
+            if(predictor.ifBranch(IF_pc)) { jump = true, jump_to = IF_pc + immediate; }
+        }
     }else if(type == S){
         rs1 = (_inst >> 15) & 0b11111u;
         rs2 = (_inst >> 20) & 0b11111u;
@@ -83,10 +89,11 @@ void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc,bool 
 Executer::Executer()
 :working(false),rd(),rs1(),rs2(),immediate(),op(),result(),TarAddress(),pc(),stall(false) {}
 
-void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[]) {
+void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchPredictor &predictor) {
     if(!x.working)return;
     if(x.IsBubble)x.IsBubble = false;
     if(x.stall){
+//        std::cout << "exe is stall !!" << std::endl;
         stall = true;
         x.stall = false;
         return;
@@ -203,22 +210,160 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[]) {
             break;
         }
         case BEQ:
-            if(rg[rs1] == rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+//            if(rg[rs1] == rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+            if(rg[rs1] == rg[rs2]){
+                if(predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                    pc += immediate;
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    pc += immediate;
+                    _pc = pc;
+                }
+            }else{
+                if(!predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    _pc = pc + 4;
+                }
+            }
             break;
         case BNE:
-            if(rg[rs1] != rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+//            if(rg[rs1] != rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+            if(rg[rs1] != rg[rs2]){
+                if(predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                    pc += immediate;
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    pc += immediate;
+                    _pc = pc;
+                }
+            }else{
+                if(!predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    _pc = pc + 4;
+                }
+            }
             break;
         case BLT:
-            if(rg[rs1] < rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+//            if(rg[rs1] < rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+            if(rg[rs1] < rg[rs2]){
+                if(predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                    pc += immediate;
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    pc += immediate;
+                    _pc = pc;
+                }
+            }else{
+                if(!predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    _pc = pc + 4;
+                }
+            }
             break;
         case BGE:
-            if(rg[rs1] >= rg[rs2])pc += immediate ,nextIsBubble = true,_pc = pc;
+//            if(rg[rs1] >= rg[rs2])pc += immediate ,nextIsBubble = true,_pc = pc;
+            if(rg[rs1] >= rg[rs2]){
+                if(predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                    pc += immediate;
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    pc += immediate;
+                    _pc = pc;
+                }
+            }else{
+                if(!predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    _pc = pc + 4;
+                }
+            }
             break;
         case BLTU:
-            if((u_int32_t)rg[rs1] < (u_int32_t)rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+//            if((u_int32_t)rg[rs1] < (u_int32_t)rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+            if((u_int32_t)rg[rs1] < (u_int32_t)rg[rs2]){
+                if(predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                    pc += immediate;
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << " ****" << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    pc += immediate;
+                    _pc = pc;
+                }
+            }else{
+                if(!predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << " ####" << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    _pc = pc + 4;
+                }
+            }
             break;
         case BGEU:
-            if((u_int32_t)rg[rs1] >= (u_int32_t)rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+//            if((u_int32_t)rg[rs1] >= (u_int32_t)rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
+            if((u_int32_t)rg[rs1] >= (u_int32_t)rg[rs2]){
+                if(predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                    pc += immediate;
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    pc += immediate;
+                    _pc = pc;
+                }
+            }else{
+                if(!predictor.ifBranch(pc)){
+                    predictor.success++;
+                    predictor.update(true,pc);
+                }else{
+//                    std::cout << "wrong prediction at: " << pc << std::endl;
+                    predictor.update(false,pc);
+                    nextIsBubble = true;
+                    _pc = pc + 4;
+                }
+            }
             break;
         case LUI:
             result = immediate;

@@ -1,7 +1,7 @@
 #include "CPUSimulator.h"
 using namespace std;
 
-Simulator::Simulator():CycleNum(0),pc(0),reg(),If(),Id(),Ex(),Mem(),Wb(),stop(false)
+Simulator::Simulator():CycleNum(0),pc(0),reg(),If(),Id(),Ex(),Mem(),Wb(),stop(false),predictor()
 {
     memory = new u_int8_t [500000000];
     for(auto &i : reg)i = 0;
@@ -17,11 +17,11 @@ void Simulator::IF() {
 }
 
 void Simulator::ID() {
-    Id.DecodeInstruction(If.inst,pc,If.working,modify,reg,Ex.nextIsBubble,If.pc);
+    Id.DecodeInstruction(If.inst,pc,If.working,modify,reg,Ex.nextIsBubble,If.pc,predictor);
 }
 
 void Simulator::EX() {
-    Ex.Execute(Id,pc,reg);
+    Ex.Execute(Id,pc,reg,predictor);
 }
 
 void Simulator::MEM() {
@@ -39,7 +39,7 @@ void Simulator::debug() const{
     cout << ", result=" << Ex.result << ", memoryAddress=" << Ex.TarAddress;
     cout << ", rd=" << Wb.tarReg << ", resultLoad=" << Wb.result;
     cout << endl;
-    cout << reg[1] << " " << reg[2] << " " << reg[10] << " " << reg[14] << " " << reg[15] << endl;
+    cout << reg[1] << " " << reg[2] << " " << reg[10] << " " << reg[12] << " " << reg[14] << " " << reg[15] << endl;
 }
 
 void Simulator::run() {
@@ -69,14 +69,17 @@ void Simulator::run() {
             break;
         }
         CycleNum++;
+//        if(CycleNum > 300)break;
         WB();
 //        debug();
         MEM();
         EX();
         ID();
+//        cout << hex << pc << dec << endl;
         IF();
 //        cout << ((u_int32_t)reg[10] & 255u) << endl;
     }
     printf("%d\n", (u_int32_t)reg[10] & 255u);
+    printf("%.2lf%c\n",100 * ((double)predictor.success / predictor.total),'%');
 }
 

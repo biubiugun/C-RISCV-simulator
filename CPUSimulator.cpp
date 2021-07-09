@@ -44,21 +44,6 @@ void Simulator::debug() const{
 
 void Simulator::run() {
     while(true){
-//        IF();
-////        cout << "step" << CycleNum + 1 << ": pc=" << hex << pc - 4;
-////        cout << ", inst= " << If.inst;
-//        if(stop)break;
-//        ID();
-////        cout << dec;
-////        cout << ", immediate=" << Id.immediate << ", op=" << Id.op << ", rs1=" << Id.rs1 << ", rs2=" << Id.rs2 << ", rd=" << Id.rd;
-////        if(Id.op == INVALID)break;
-//        EX();
-////        cout << ", result=" << Ex.result << ", memoryAddress=" << Ex.TarAddress;
-//        MEM();
-////        cout << ", resultLoad=" << Mem.result;
-//        WB();
-//        CycleNum++;
-//        cout << endl;
         if(stop){
             WB();
             MEM();
@@ -69,17 +54,17 @@ void Simulator::run() {
             break;
         }
         CycleNum++;
-//        if(CycleNum > 300)break;
         WB();
+//        for debug：
 //        debug();
         MEM();
         EX();
         ID();
-//        cout << hex << pc << dec << endl;
         IF();
-//        cout << ((u_int32_t)reg[10] & 255u) << endl;
     }
+//    格式输出：
     printf("%d\n", (u_int32_t)reg[10] & 255u);
+//    预测成功率：
 //    printf("%.2lf%c\n",100 * ((double)predictor.success / predictor.total),'%');
 }
 

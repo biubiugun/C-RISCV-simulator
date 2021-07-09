@@ -6,7 +6,6 @@ InstructionFetcher::InstructionFetcher()
 void InstructionFetcher::FetchInstruction(u_int8_t *memory, u_int32_t &_pc,bool &stop,bool ID_stall,bool jump,u_int32_t jump_to,bool isBubble) {
     if(ID_stall) {
         _pc -= 4;
-//        std::cout << "%%%%%______" << _pc << " " <<  pc << std::endl;
     }
     if(!ID_stall && jump)_pc = jump_to;
     if(isBubble && ID_stall)_pc += 4;
@@ -25,7 +24,6 @@ void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc,bool 
     jump = false;
     if(isBubble){
         stall = true;
-//        std::cout << "id is stall !!" << std::endl;
         IsBubble = true;
         isBubble = false;
         return;
@@ -50,8 +48,6 @@ void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc,bool 
         else {
             modify[rd]++;
         }
-//        if(modify[rd] == 1)std::cout << rd  << "______$$" << std::hex << IF_pc << std::endl << std::dec;
-//        if(modify[rd] == 2)std::cout << op  << "______@@" << std::hex << IF_pc << std::endl << std::dec;
         if(op == JALR){
             if(!stall){
                 jump = true,jump_to = (rg[rs1] + immediate) & ~1;
@@ -81,7 +77,6 @@ void InstructionDecoder::DecodeInstruction(u_int32_t _inst, u_int32_t &_pc,bool 
         if(modify[rs1] > 0 || modify[rs2] > 0)stall = true;
         else modify[rd]++;
     }
-//    if(rd == 12 && !stall)std::cout << op  << "!!!!!!!___" << std::hex << IF_pc << std::endl << std::dec;
     pc = IF_pc;
     working = true;
 }
@@ -93,7 +88,6 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
     if(!x.working)return;
     if(x.IsBubble)x.IsBubble = false;
     if(x.stall){
-//        std::cout << "exe is stall !!" << std::endl;
         stall = true;
         x.stall = false;
         return;
@@ -206,18 +200,15 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
         case SW:{
             result = rg[rs2];
             TarAddress = rg[rs1] + immediate;
-//            std::cout << std::dec << rs2 << " " << rg[rs2] << " ********" << " " << rs1 << " " << rg[rs1] << " " << std::hex << TarAddress << std::endl << std::dec;
             break;
         }
         case BEQ:
-//            if(rg[rs1] == rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
             if(rg[rs1] == rg[rs2]){
                 if(predictor.ifBranch(pc)){
                     predictor.success++;
                     predictor.update(true,pc);
                     pc += immediate;
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     pc += immediate;
@@ -228,7 +219,6 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
                     predictor.success++;
                     predictor.update(true,pc);
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     _pc = pc + 4;
@@ -236,14 +226,12 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
             }
             break;
         case BNE:
-//            if(rg[rs1] != rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
             if(rg[rs1] != rg[rs2]){
                 if(predictor.ifBranch(pc)){
                     predictor.success++;
                     predictor.update(true,pc);
                     pc += immediate;
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     pc += immediate;
@@ -254,7 +242,6 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
                     predictor.success++;
                     predictor.update(true,pc);
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     _pc = pc + 4;
@@ -262,14 +249,12 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
             }
             break;
         case BLT:
-//            if(rg[rs1] < rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
             if(rg[rs1] < rg[rs2]){
                 if(predictor.ifBranch(pc)){
                     predictor.success++;
                     predictor.update(true,pc);
                     pc += immediate;
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     pc += immediate;
@@ -280,7 +265,6 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
                     predictor.success++;
                     predictor.update(true,pc);
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     _pc = pc + 4;
@@ -288,14 +272,12 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
             }
             break;
         case BGE:
-//            if(rg[rs1] >= rg[rs2])pc += immediate ,nextIsBubble = true,_pc = pc;
             if(rg[rs1] >= rg[rs2]){
                 if(predictor.ifBranch(pc)){
                     predictor.success++;
                     predictor.update(true,pc);
                     pc += immediate;
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     pc += immediate;
@@ -306,7 +288,6 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
                     predictor.success++;
                     predictor.update(true,pc);
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     _pc = pc + 4;
@@ -314,14 +295,12 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
             }
             break;
         case BLTU:
-//            if((u_int32_t)rg[rs1] < (u_int32_t)rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
             if((u_int32_t)rg[rs1] < (u_int32_t)rg[rs2]){
                 if(predictor.ifBranch(pc)){
                     predictor.success++;
                     predictor.update(true,pc);
                     pc += immediate;
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << " ****" << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     pc += immediate;
@@ -332,7 +311,6 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
                     predictor.success++;
                     predictor.update(true,pc);
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << " ####" << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     _pc = pc + 4;
@@ -340,14 +318,12 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
             }
             break;
         case BGEU:
-//            if((u_int32_t)rg[rs1] >= (u_int32_t)rg[rs2])pc += immediate,nextIsBubble = true,_pc = pc;
             if((u_int32_t)rg[rs1] >= (u_int32_t)rg[rs2]){
                 if(predictor.ifBranch(pc)){
                     predictor.success++;
                     predictor.update(true,pc);
                     pc += immediate;
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     pc += immediate;
@@ -358,7 +334,6 @@ void Executer::Execute(InstructionDecoder &x,u_int32_t &_pc,int32_t rg[],BranchP
                     predictor.success++;
                     predictor.update(true,pc);
                 }else{
-//                    std::cout << "wrong prediction at: " << pc << std::endl;
                     predictor.update(false,pc);
                     nextIsBubble = true;
                     _pc = pc + 4;
@@ -406,9 +381,7 @@ void MemoryAccessor::AccessMemory(Executer &x, u_int8_t *memory) {
             break;
         }
         case LW:{
-//            std::cout << std::hex << std::endl << address << std::endl;
             memcpy(&result,memory + address,sizeof(u_int32_t));
-//            std::cout << std::endl << std::dec << result << std::endl;
             break;
         }
         case LBU:{
@@ -436,9 +409,6 @@ void MemoryAccessor::AccessMemory(Executer &x, u_int8_t *memory) {
         case SW: {
             u_int32_t tmp = result;
             memcpy(memory + address, &tmp, sizeof(u_int32_t));
-//            std::cout << std::endl << "*********";
-//            std::cout << std::hex << std::endl << address << std::endl;
-//            std::cout << std::endl << std::dec << result << std::endl;
             break;
         }
         default: break;
@@ -453,15 +423,11 @@ void Writer::WriteBack(MemoryAccessor &x, int32_t rg[],int modify[]) {
         x.stall = false;
         return;
     }
-//    if(modify[10] == 1)std::cout << x.op  << "wb______$$" << x.rd << std::endl;
-//    if(modify[10] == 2)std::cout << x.op  << "wb______@@" << x.rd << std::endl;
     rg[0] = 0;
     op = x.op;
     if(op == SB || op == SW || op == SH || op == BEQ || op == BNE || op == BGE || op == BLT || op == BLTU || op == BGEU)return;
     result = x.result;
     tarReg = x.rd;
-//    if(modify[tarReg] == 1)std::cout << x.op  << "wb______$$" << x.rd << std::endl;
-//    if(modify[tarReg] == 2)std::cout << x.op  << "wb______@@" << x.rd << std::endl;
     modify[tarReg]--;
     if(tarReg == 0)return;
     rg[tarReg] = result;

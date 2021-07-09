@@ -1,3 +1,5 @@
+//created by biubiugun at 2021.7.8
+//二位饱和计数器预测
 #ifndef RISCV_BRANCHPREDICTOR_H
 #define RISCV_BRANCHPREDICTOR_H
 

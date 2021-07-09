@@ -80,6 +80,6 @@ void Simulator::run() {
 //        cout << ((u_int32_t)reg[10] & 255u) << endl;
     }
     printf("%d\n", (u_int32_t)reg[10] & 255u);
-    printf("%.2lf%c\n",100 * ((double)predictor.success / predictor.total),'%');
+//    printf("%.2lf%c\n",100 * ((double)predictor.success / predictor.total),'%');
 }
 
